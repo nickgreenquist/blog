@@ -4,7 +4,17 @@ title:  "50+ Data Science Terms"
 date:   2018-02-13 18:05:14 -0500
 categories: jekyll update
 ---
+<style type="text/css">
+    .center-image
+    {
+        margin: 0 auto;
+        display: block;
+    }
+</style>
+
 Terms defined as part of an introductory assignment for a Big Data Science class at NYU. The professor gave use these definitions because he was sick of students not knowing key words during lecture. I was at first annoyed that this was even given as an assignemtnt, however I actually did learn a few things just from looking up all of these topics. And yes, I know, deep learning is defined twice.
+
+![Data Science Word Cloud]({{ "/assets/wordcloud.png" | absolute_url }}){:width="700px" .center-image}
 
 1. **Prescriptive Analytics** - Unlike predictive analytics (predicting the future) and descriptive analytics (insights in what has happened), prescriptive analytics uses known parameters to find the best choice in a business analytics environment. Prescriptive analytics is often used to mitigate future risk. Prescriptive analytics tends to use known parameters to make its decisions. 
     - Source: [http://searchcio.techtarget.com/definition/Prescriptive-analytics](http://searchcio.techtarget.com/definition/Prescriptive-analytics)
