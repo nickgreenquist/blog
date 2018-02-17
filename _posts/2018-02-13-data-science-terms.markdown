@@ -12,7 +12,7 @@ categories: jekyll update
     }
 </style>
 
-Terms defined as part of an introductory assignment for a Big Data Science class at NYU. The professor gave use these definitions because he was sick of students not knowing key words during lecture. I was at first annoyed that this was even given as an assignemtnt, however I actually did learn a few things just from looking up all of these topics. And yes, I know, deep learning is defined twice.
+Terms defined as part of an introductory assignment for a Big Data Science class at NYU. The professor gave us these definitions because he was sick of students not knowing key words during lecture. I was at first annoyed that this was even given as an assignemtnt, however I actually did learn a few things just from looking up all of these topics. And yes, I know, deep learning is defined twice.
 
 ![Data Science Word Cloud]({{ "/assets/wordcloud.png" | absolute_url }}){:width="700px" .center-image}
 
