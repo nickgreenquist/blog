@@ -130,7 +130,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
 12. **Please view the image below if you are stuck**
 
-    ![Item Recommendation Apply]({{ "/assets/itemrecommendationsapply.png" | absolute_url }}){:width="700px" .center-image}
+    ![Item Recommendation Apply]({{ "/assets/ItemRecommendationsApply.png" | absolute_url }}){:width="700px" .center-image}
 
 13. **View performance metrics**
 
@@ -154,7 +154,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
 15. **Please view the image below if you are stuck**
 
-![Item Recommendation Performance]({{ "/assets/itemrecommendationsperformance.png" | absolute_url }}){:width="700px" .center-image}
+![Item Recommendation Performance]({{ "/assets/ItemRecommendationsPerformance.png" | absolute_url }}){:width="700px" .center-image}
 
 **Notes and further exploration:**
 
