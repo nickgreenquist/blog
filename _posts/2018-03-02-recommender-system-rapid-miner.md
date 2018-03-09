@@ -14,7 +14,7 @@ categories: jekyll update
 
 **User k-NN Collaborative Filtering for Item Recommendations - A step by step guide in Rapid Miner**
 
-![RapidMiner]({{ "/assets/rapidminer.png" | absolute_url }}){:width="700px" .center-image}
+![RapidMiner]({{ "/assets/RecommenderSystem/rapidminer.png" | absolute_url }}){:width="700px" .center-image}
 
 As part of a class for NYU, a team of 3 of us are building a recommendation system for books. To quickly prototype a dead simple recommender system, we put together a simple Rapid Miner workflow. You can read more about this [here at Doruk Kilitcioglu's blog](https://dorukkilitcioglu.github.io/data-science/2018/03/01/adventures-rapidminer.html). Below are is the step by step guide we used to get results from Rapid Miner for item recommendations using user-user collaborative filtering. 
 
@@ -56,7 +56,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
     14. Hit `OK`
 
-    ![RapidMiner]({{ "/assets/filter.png" | absolute_url }}){:width="700px" .center-image}
+    ![RapidMiner]({{ "/assets/RecommenderSystem/filter.png" | absolute_url }}){:width="700px" .center-image}
 
 6. **Set the role of the columns**
 
@@ -66,7 +66,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
     17. At the far right, from the `attribute name` drop down, select `rating` and set the target role to `label`
 
-    ![RapidMiner]({{ "/assets/label.png" | absolute_url }}){:width="300px" .center-image}
+    ![RapidMiner]({{ "/assets/RecommenderSystem/label.png" | absolute_url }}){:width="300px" .center-image}
 
     18. Click on the `Edit List` button
 
@@ -78,7 +78,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
     19. Hit `Apply`
 
-    ![RapidMiner]({{ "/assets/roles.png" | absolute_url }}){:width="700px" .center-image}
+    ![RapidMiner]({{ "/assets/RecommenderSystem/roles.png" | absolute_url }}){:width="700px" .center-image}
 
 7. **Split data into `train` and `test`**
 
@@ -96,7 +96,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
     26. Hit `OK`
 
-    ![RapidMiner]({{ "/assets/split.png" | absolute_url }}){:width="700px" .center-image}
+    ![RapidMiner]({{ "/assets/RecommenderSystem/split.png" | absolute_url }}){:width="700px" .center-image}
 
 8. **Add Recommender System algorithm**
 
@@ -130,7 +130,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
 12. **Please view the image below if you are stuck**
 
-    ![Item Recommendation Apply]({{ "/assets/ItemRecommendationsApply.png" | absolute_url }}){:width="700px" .center-image}
+    ![Item Recommendation Apply]({{ "/assets/RecommenderSystem/ItemRecommendationsApply.png" | absolute_url }}){:width="700px" .center-image}
 
 13. **View performance metrics**
 
@@ -154,7 +154,7 @@ As part of a class for NYU, a team of 3 of us are building a recommendation syst
 
 15. **Please view the image below if you are stuck**
 
-![Item Recommendation Performance]({{ "/assets/ItemRecommendationsPerformance.png" | absolute_url }}){:width="700px" .center-image}
+![Item Recommendation Performance]({{ "/assets/RecommenderSystem/ItemRecommendationsPerformance.png" | absolute_url }}){:width="700px" .center-image}
 
 **Notes and further exploration:**
 
