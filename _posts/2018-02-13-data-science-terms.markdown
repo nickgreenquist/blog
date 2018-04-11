@@ -2,7 +2,7 @@
 layout: post
 title:  "50+ Data Science Terms"
 date:   2018-02-13 18:05:14 -0500
-categories: jekyll update
+categories: datascience
 ---
 <style type="text/css">
     .center-image
