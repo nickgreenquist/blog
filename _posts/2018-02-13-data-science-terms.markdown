@@ -81,7 +81,7 @@ Terms defined as part of an introductory assignment for a Big Data Science class
     - Source: [https://docs.rapidminer.com/latest/studio/operators/validation/split_validation.html](https://docs.rapidminer.com/latest/studio/operators/validation/split_validation.html)
 
 23. **Sentiment Analysis** - The process of determining if a piece of text (or spoken word) is positive, negative, or neutral. Sentiment Analysis is also called opinion mining or deriving the opinion of a speaker or writer. Sentiment analysis is a powerful technique that can measure how people feel about a topic. Researchers have used this so find correlations between sentiment and seemingly unrelated events like stock prices. Sentiment analysis is also widely used in marketing and businesses who need to monitor the sentiment of their consumers. 
-    - Source: [https://monkeylearn.com/sentiment-analysis/](MonkeyLearn: Sentiment Analysis)
+    - Source: [MonkeyLearn: Sentiment Analysis](https://monkeylearn.com/sentiment-analysis/)
 
 24. **Feature (in data analytics)** - A piece of measurable information about something. A collection of features (or even a single feature) can be used to describe something or someone. For example, your age, address, height, weight, SSN, and phone number are all features that describe you. Feature is also synonymous with attribute, property, or field. In machine learning, features are fed into models that use them to predict or classify unknown sets of features into predefined groups (or undefined clusters based on similarity to seen sets of features). 
 
