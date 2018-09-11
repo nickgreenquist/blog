@@ -79,7 +79,7 @@ func main() {
 #### Output: 
 
 
-That's right: nothing was printed! Why did this happen? Well, the `for` loop fires off 20 concurrent routines. Those routines are off running on their own. `main()` then continues running. What is afer the `for` loop? Well, nothing. So `main()` terminates. Those routines that split off never had a chance to even print anything! So how can we fix this? Let's take a look at one approach using `channels`. 
+That's right: nothing was printed! Why did this happen? Well, the `for` loop fires off 20 concurrent routines. Those routines are off running on their own. `main()` then continues running. What is after the `for` loop? Well, nothing. So `main()` terminates. Those routines that split off never had a chance to even print anything! So how can we fix this? Let's take a look at one approach using `channels`. 
 
 
 ### Concurrent Function Calls with Channel
