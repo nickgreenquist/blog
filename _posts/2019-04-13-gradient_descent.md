@@ -27,41 +27,41 @@ By: [Nick Greenquist](https://nickgreenquist.github.io/)
 Gradient Descent is one of the most important algorithms to deeply understand if you are interested in Machine Learning. Almost all training of machine learning models (the actual 'learning' part) is done using Gradient Descent or it's subsets (Stochastic Gradient Descent, Minibatch Gradient Descent, etc). There is a fair amount of math involved with understanding what is going, but with some Linear Algebra and Matrix Calculus basics, you can get through it. This post will explain how to implement Gradient Descent for Linear Regression from scratch, all the way from the equations to the code.
 
 ## Linear Regression
-In linear regression, we consider the hypothesis space of linear functions
-$h(\theta):R^{d} \to R$, where
+In linear regression, we use the hypothesis space of linear functions
+$h(\theta):R^{d} \to R$ (function parameterized by d-dimensional vector and spits out a Real scalar value), where
 
 $$ \begin{eqnarray}
 h(\theta, x)=\theta^{T}x,
 \end{eqnarray}
 $$
 
-for $\theta,x\in\ R^{d}$. What this means, in english, is that we want to find some function $h_{\theta}(x)$, that takes a $\theta$ vector of weights (this is what we want to optimize using Gradient Descent), and computes the dot product of itself and the input $x$ (and spits out one Real scalar value). $x$ is a training point that is a vector of that training point's 'features'. So, $\theta$ will be a vector that has one value for every feature that our inputs will have.
+for $\theta,x\in\ R^{d}$. What this means, in english, is that we want to find some function $h(\theta, x)$, that takes a $\theta$ vector of weights (this is what we want to optimize using Gradient Descent), and computes the dot product of itself and the input $x$ (and spits out one Real scalar value). $x$ is a training point that is a vector of that training point's 'features'. So, $\theta$ will be a vector that has one value for every feature that our inputs will have.
 
 ## Loss Function
 In order to optimize $\theta$ with Gradient Descent, we need some loss function that tells us how well this $\theta$ is attempting to  predict the correct values for each input.
 
-We will use the ``average square loss'' objective function: 
+We will use the ```average square loss``` objective function: 
 
 $$ \begin{eqnarray}
-J(\theta)=\frac{1}{m}\sum_{i=1}^{m}\left(h_{\theta}(x_{i})-y_{i}\right)^{2},
+J(\theta)=\frac{1}{n}\sum_{i=1}^{n}\left(h_{\theta}(x_{i})-y_{i}\right)^{2},
 \end{eqnarray}
 $$
 
-Our training data is: $(x_{1},y_{1}),\ldots,(x_{m},y_{m})\in R^{d}\times R$.
+Our training data is: $(x_{1},y_{1}),\ldots,(x_{n},y_{n})\in R^{d}\times R$. This means we have $n$ training points, where each training point is a vector of $d$ dimensions, and each point corresponds to a 'correct' Real scalar value ($y_i$).
 We will use this loss function to optimize $\theta$, or find a $\theta$ that gives the lowest value when passed into this loss funciton.
 
-Usually in real life, it's more standard to use ``affine'' functions for our hypothesis space:
+Usually in real life, it's more standard to use ```affine``` functions for our hypothesis space:
 
 $$ \begin{eqnarray}
 h(\theta, x, b)=\theta^{T}x+b,
 \end{eqnarray}
 $$
 
-which allows us to have an intercept term (which really is essential for any decent linear regression model). We can add an extra dimension to $x$ that is the fixed value of 1. Using this representation, we have $\theta,x\in R^{d+1}$.
+which allows us to have an intercept term (which really is essential for any decent linear regression model). If we don't use affine functions, we can only learn functions that pass through the origin, which is BAD. We can do a clever trick and can add an extra dimension to $x$ that is the fixed value of 1. Using this representation, we have $\theta,x\in R^{d+1}$. Now, we can use this extra feature as a 'bias' and train functions that aren't restricted to pass through the origin. 
 
 ### Vectorization
-Now, we want to set up this problem in a way to use the ENTIRE training set. we need to define the Design Matrix as $X\in R^{m\times\left(d+1\right)}$, where the $i$'th row of $X$ is $x_{i}$, or the $i$'th training point/example. 
-Let $y=\left(y_{1},\ldots,y_{m}\right)^{T}\in R^{m\times1}$
+Now, we want to set up this problem in a way to use the ENTIRE training set, not just a single point and output at a time. We need to define the Design Matrix as $X\in R^{n\times\left(d+1\right)}$, where the $i$'th row of $X$ is $x_{i}$, or the $i$'th training point/example. Notice how we now have $d+1$ dimensions after the 'bias' trick. 
+Let $y=\left(y_{1},\ldots,y_{n}\right)^{T}\in R^{n\times1}$
 be the vector of the correct outputs of every training example.
 
 Why are we doing this? Well, we want to write the loss funciton in 'vectorized' form, because our computers are often MUCH faster at computing matrix/vector operations in vectorized forms, as they can take advantage of SIMD (single instruction, multiple data) operations. What this means is that our CPUs are able to run the same operation on multiple pices of data (if you let it). Vectorizing your code allows the CPU to do this. 
@@ -106,7 +106,7 @@ $$ \begin{eqnarray}
 J(\theta)=\frac{1}{m} (\theta^{T}X^{T}X\theta - 2\theta^{T}X^{T}y + y^{T}y)
 \end{eqnarray}$$
 
-Now take the gradient with respect to $\theta$
+Now take the gradient with respect to $\theta$ (if you don't know Matrix Calculus, you can _kinda_ do some of the same derivative tricks that you learn in Calc1 or Calc3, but there is some weird dimension/transpose stuff added in when dealing with vectors and matrices).
 
 $$ \begin{eqnarray}
 \Delta_{\theta}J(\theta)= \frac{1}{m} (2X^{T}X\theta - 2X^{T}y)
@@ -167,20 +167,19 @@ def compute_square_loss_gradient(X, y, theta):
 ```
 
 ### Gradient Checker
-Something that is very common to do is verify the function you used to compute the gradient of a loss funciton is to code up something called a 'gradient checker'. 
-If our loss function is differentiable, then for any vector $h\in R^{d}$, the directional derivative
-of $J$ at $\theta$ in the direction $h$ is:
+Something that is very common to do is verify the function you used to compute the gradient of a loss funciton is to code up something called a 'gradient checker'. If we can differentiate our loss function, then for any vector $v\in R^{d}$, the directional derivative
+of $J$ at $\theta$ in the direction $v$ is:
 
 $$ \begin{eqnarray}
-\Delta_{\theta}J(\theta) = \lim_{\epsilon \to0}\frac{J(\theta+\epsilon  h)-J(\theta-\epsilon  h)}{2\epsilon}.
+\Delta_{\theta}J(\theta) = \lim_{\epsilon \to0}\frac{J(\theta+\epsilon v)-J(\theta-\epsilon v)}{2\epsilon}.
 \end{eqnarray}$$
 
-If we choose a very small $\epsilon >0$, we can use the above statement to estimate the true gradient and compare it to our ```compute_square_loss_gradient``` function.
+If we choose a very small $\epsilon >0$, we can use the above statement to estimate the true gradient and compare it to what we get from our ```compute_square_loss_gradient``` function.
 
 Here is the code for a Gradient Checker for the Square Loss Function. Notice how it checks to see if both approaches produce gradients that are basically equal (up to some threshold):
 
 ```python
-def grad_checker(X, y, theta, tolerance=1e-4, epsilon=0.01):
+def gradient_checker(X, y, theta, tolerance=1e-4, epsilon=0.01):
     true_gradient = compute_square_loss_gradient(X, y, theta) #The true gradient
     num_features = theta.shape[0]
     approx_grad = np.zeros(num_features) #Initialize the gradient we approximate
