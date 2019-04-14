@@ -61,7 +61,7 @@ which allows us to have an intercept term (which really is essential for any dec
 
 ### Vectorization
 Now, we want to set up this problem in a way to use the ENTIRE training set. we need to define the Design Matrix as $X\in R^{m\times\left(d+1\right)}$, where the $i$'th row of $X$ is $x_{i}$, or the $i$'th training point/example. 
-Let $y=\left(y_{1},\ldots,y_{m}\right)^{T}\in\reals^{m\times1}$
+Let $y=\left(y_{1},\ldots,y_{m}\right)^{T}\in R^{m\times1}$
 be the vector of the correct outputs of every training example.
 
 Why are we doing this? Well, we want to write the loss funciton in 'vectorized' form, because our computers are often MUCH faster at computing matrix/vector operations in vectorized forms, as they can take advantage of SIMD (single instruction, multiple data) operations. What this means is that our CPUs are able to run the same operation on multiple pices of data (if you let it). Vectorizing your code allows the CPU to do this. 
