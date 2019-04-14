@@ -35,7 +35,7 @@ h(\theta, x)=\theta^{T}x,
 \end{eqnarray}
 $$
 
-for $\theta,x\in\ R^{d}$. What this means, in english, is that we want to find some function $h_{\theta}(x)$, that takes a $\theta$ vector of weights (this is what we want to optimize using Gradient Descent), and computes the dot product of itself and the input $x$ (and spits out one Read value). $x$ is a training point that is a vector of that training point's 'features'. So, $\theta$ will be a vector that has one value for every feature that our inputs will have.
+for $\theta,x\in\ R^{d}$. What this means, in english, is that we want to find some function $h_{\theta}(x)$, that takes a $\theta$ vector of weights (this is what we want to optimize using Gradient Descent), and computes the dot product of itself and the input $x$ (and spits out one Real scalar value). $x$ is a training point that is a vector of that training point's 'features'. So, $\theta$ will be a vector that has one value for every feature that our inputs will have.
 
 ## Loss Function
 In order to optimize $\theta$ with Gradient Descent, we need some loss function that tells us how well this $\theta$ is attempting to  predict the correct values for each input.
@@ -69,10 +69,13 @@ Why are we doing this? Well, we want to write the loss funciton in 'vectorized' 
 Here is the vectorized loss function:
 
 $$ \begin{eqnarray}
-J(\theta)=\frac{1}{m}\|X\theta - y\|_2^2 =\frac{1}{m}\sum_{i=1}^{m}\left(h_{\theta}(x_{i})-y_{i}\right)^{2},
+J(\theta)=\frac{1}{m}\|X\theta - y\|_2^2
 \end{eqnarray}$$
 
 Which is equivalent to the way we wrote it using summations (which would require loops in a programming language):
+$$ \begin{eqnarray}
+J(\theta)=\frac{1}{m}\sum_{i=1}^{m}\left(h_{\theta}(x_{i})-y_{i}\right)^{2},
+\end{eqnarray}$$
 
 ## Gradient of the Loss Function
 Next, we want to find the Gradient of this loss function. Doing so is essential to setting up a Gradient Descent procedure to 'learn' the best $\theta$. 
