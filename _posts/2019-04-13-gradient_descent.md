@@ -233,7 +233,7 @@ def main():
     y = df.values[:,-1]
 
     # Split into Train and Test
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size =100, random_state=10)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size =100)
 
     # Scaling all features to [0, 1] and adding bias term
     X_train, X_test = feature_normalization(X_train, X_test)
