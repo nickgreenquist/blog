@@ -2,7 +2,7 @@
 layout: post
 title:  "Linear Regression with L2 Regularization: Ridge Regression"
 date:   2019-04-15 09:05:14 -0500
-categories: datascience
+categories: Datascience
 ---
 <style type="text/css">
     .center-image

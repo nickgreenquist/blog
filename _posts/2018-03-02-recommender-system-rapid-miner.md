@@ -2,7 +2,7 @@
 layout: post
 title:  "Recommender System with Rapid Miner"
 date:   2018-03-02 18:05:14 -0500
-categories: datascience
+categories: Datascience
 ---
 <style type="text/css">
     .center-image

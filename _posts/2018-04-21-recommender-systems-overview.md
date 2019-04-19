@@ -2,7 +2,7 @@
 layout: post
 title:  "Recommender Systems Overview"
 date:   2018-04-21 09:05:14 -0500
-categories: datascience
+categories: Datascience
 ---
 <style type="text/css">
     .center-image

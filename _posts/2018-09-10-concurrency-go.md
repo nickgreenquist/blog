@@ -2,7 +2,7 @@
 layout: post
 title:  "Concurrency With Go"
 date:   2018-09-10 09:05:14 -0500
-categories: distributed
+categories: miscl
 ---
 <style type="text/css">
     .center-image

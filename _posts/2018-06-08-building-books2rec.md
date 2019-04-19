@@ -2,7 +2,7 @@
 layout: post
 title:  "Building Books2Rec - A Book Recommender System"
 date:   2018-06-08 07:05:14 -0500
-categories: datascience
+categories: Projects
 ---
 <style type="text/css">
     .center-image

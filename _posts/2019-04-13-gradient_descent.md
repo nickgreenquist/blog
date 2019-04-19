@@ -2,7 +2,7 @@
 layout: post
 title:  "Gradient Descent for Linear Regression: Step by Step"
 date:   2019-04-13 09:05:14 -0500
-categories: datascience
+categories: Datascience
 ---
 <style type="text/css">
     .center-image
