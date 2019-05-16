@@ -6,5 +6,4 @@ layout: home
 ---
 
 <div id="archives">
-HAHAHA
 </div>
