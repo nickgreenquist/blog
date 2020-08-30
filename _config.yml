@@ -16,7 +16,7 @@
 title: Nick Greenquist
 email: nickgreenquist@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Welcome to my blog! I am a current Computer Science Masters student at New York University. 
+  Welcome to my blog! I am a Software Engineer at Google and am lucky enough to work on Machine Learning problems there. 
   I've always been interested in 'creating' more than 'consuming' so this blog will serve
   as my attempt to do just that. 
 baseurl: "/blog" # the subpath of your site, e.g. /blog
