@@ -24,7 +24,7 @@ categories: Datascience
 By: [Nick Greenquist](https://nickgreenquist.github.io/)
 
 ## Introduction
-In one of my past posts, we learned and derived [Ridge Regressoin](https://nickgreenquist.github.io/blog/datascience/2019/04/15/ridge_regression.html). Ridge Regression is super powerful, but has one major issue that makes not so great for real world problems: it's a linear model. 
+In one of my past posts, we learned and derived [Ridge Regression](https://nickgreenquist.github.io/blog/datascience/2019/04/15/ridge_regression.html). Ridge Regression is super powerful, but has one major issue that makes not so great for real world problems: it's a linear model. 
 
 How can we use a model like Ridge Regression to fit a model on the **non-linear data** below?
 
