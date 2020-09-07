@@ -411,3 +411,17 @@ n_estimators=50, mean_test_error=[0.01544227]
 ```
 
 **BEST**: The RandomForestRegresso with 7 estimators and 1 feature achieved a mean test error of 0.01482915. This is best model on this dataset using any model.
+
+## Kernelization: Pros and Cons
+As with all ML methods, there are tradeoffs. Kernelizing well understood models (like Ridge Regression) is not going to solve all your problems. Here are a few Pros and Cons of Kernel Methods. 
+
+### Pros
+1. You can use well understood algorithms for more complicated feature spaces
+2. Good performance
+
+### Cons
+1. You have to add selecting a kernel to hyperparameter tuning
+2. Performance scales exponentially with the amount of data you have (since you are computing the similarities between data points). Once you have > 100k training points, you're much better off using **Deep Learning**. 
+
+## Conclusion
+That was quite a journey! In the past two posts, we've seen how to take a super simple linear model, and using some powerful mathematical facts and theorems, tweak it to be used on non-linear data. 
