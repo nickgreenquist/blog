@@ -24,11 +24,9 @@ categories: Datascience
 By: [Nick Greenquist](https://nickgreenquist.github.io/)
 
 ## Introduction
-TODO
+In my [previous post](https://nickgreenquist.github.io/blog/datascience/2020/09/05/kernel_ridge_regression_math.html), we derived and proved all the math that is foundational to Kernels and Kernelizing Ridge Regression. In this post, I will show you how to implement Kernelized Ridge Regression in Python **using no ML libraries**. 
 
 ## Kernel Ridge Regression: Code
-Let's code kernel ridge regression. 
-
 There are many different families of kernels (linear kernels, RBF/Gaussian kernels, and polynomial kernels).
 We will assume that our input space is $x \in R^{d}$. This allows
 us to represent a collection of $n$ inputs in a matrix $X\in R^{n\times d}$.
