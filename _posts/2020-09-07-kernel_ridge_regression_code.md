@@ -317,7 +317,7 @@ df_toshow = df[cols_to_keep].fillna('-')
 df_toshow.sort_values(by=["mean_test_score"])
 ```
 
-![Plot]({{ "/assets/Kernels/6_3_5.png" | absolute_url }}){:width="900px" .center-image}
+![Plot]({{ "/assets/Kernels/6_3_5.PNG" | absolute_url }}){:width="900px" .center-image}
 
 #### Best Fitting Prediction Functions: RBF and Polynomial
 We will use the domain $x\in\left(-0.5,1.5\right)$
@@ -377,7 +377,7 @@ param_grid = [{'kernel': ['RBF'],'sigma':[.1,1,10], 'l2reg': np.exp2(-np.arange(
               {'kernel':['linear'],'l2reg': [10,1,.01]}]
 ```
 
-![Plot]({{ "/assets/Kernels/6_3_8.png" | absolute_url }}){:width="900px" .center-image}
+![Plot]({{ "/assets/Kernels/6_3_8.PNG" | absolute_url }}){:width="900px" .center-image}
 
 #### Compare to best Scikit-Learn model
 Let's see if we can use scikit-learn to beat our 'from scratch' results.
