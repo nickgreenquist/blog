@@ -12,6 +12,8 @@ categories: miscl
     }
 </style>
 
+![Main]({{ "/assets/Books2Rec/books2rec.png" | absolute_url }}){:width="800px" .center-image}
+
 Reading is one of the most important parts of my life, and has been since I was a little kid. In this post, I want to list out all the books that I feel have changed my life for the better. I won't summarize or say what the book is about, but only briefly explain how each book changed me. 
 
 This also is not a list of my favorite books (altough many here I would count as such). Instead it is the books that I felt changed me the most after finishing them. 
