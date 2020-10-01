@@ -535,7 +535,7 @@ Plots:
 ![MulticlassSVMPlot]({{ "/assets/Multiclass/4-2-1.png" | absolute_url }}){:width="400px" .center-image}
 
 NOTE: I used a running average of $w$ instead of simply returning the last updated $w$. Psuedocode is below:
-![Pseudocode]({{ "/assets/Multiclass/4-2.png" | absolute_url }}){:width="800px" .center-image}
+![Pseudocode]({{ "/assets/Multiclass/4-2.PNG" | absolute_url }}){:width="800px" .center-image}
 
 ## Conclusion
 
