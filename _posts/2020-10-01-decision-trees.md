@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Decision Trees"
+title:  "Decision Tree From Scratch"
 date:   2020-10-01 09:05:14 -0500
 categories: Datascience
 ---
