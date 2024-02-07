@@ -20,23 +20,21 @@ Recommender systems are at the forefront of the ways in which content-serving we
 
 <a id="what-is"></a>
 ### What is a recommender system?
-In my own words: a recommender system's job is to match users to content. They score/rank which content to show based on some pre-determined metric to optimize (i.e. what content will the user find most relevant or engaging). Recommendation Systems exist because many platoforms have thousands (or millions) of 'things' they could show their users, and screen real estate is extremely valuable, so they help the platforms show only what they think the user will like. Without them, it would also be impossible for the user to sift through millions of options. 
+In my own words: a recommender system's job is to match users to content. They score/rank which content to show based on some pre-determined metric to optimize (i.e. what content will the user find most relevant or engaging). Recommendation Systems exist because many platforms have thousands (or millions) of 'things' they could show their users, and screen real estate is extremely valuable, so they help the platforms show only what they think the user will like. Without them, it would also be impossible for the user to sift through millions of options. 
 
 <a id="use-cases"></a>
 ### Use Cases
-Recommender systems are used to match users to:
-1. what movie to watch next on Netflix
-2. what product to buy next on Amazon
-3. what song to listen to next on Spotify
-4. what video to watch next on YouTube
-5. what post to show next on Instagram feed
-7. what destination to check out next on Booking
-
-You might not realize it, but recommender systems pretty much power almost all of the modern day digital landscape. 
+Recommender systems are used to decide:
+1. What movie to watch next on Netflix
+2. What product to buy next on Amazon
+3. What song to listen to next on Spotify
+4. What video to watch next on YouTube
+5. What post to show next on Instagram feed
+6. What destination to check out next on Booking
 
 <a id="sneak-peek"></a>
 ### Sneak Peek of this Post
-Just to give an idea of what we are going to build here, it's going to be a movie recommendation system that can give us recommendations for users like so:
+Just to give an idea of what we are going to build here, it's going to be a movie recommendation system that can give us recommendations for users like:
 
 ![Horror Movie Recs]({{ "/assets/MovieLens/horror_recs.png" | absolute_url }}){:width="500px" .center-image}
 
@@ -51,8 +49,8 @@ Just to give an idea of what we are going to build here, it's going to be a movi
   - [Deep Recommender Systems](#deep-rec)
   - [The Core Issue](#core-issue)
   - [The Goal](#goal)
-- [Dataset](#dataset)
 - [Building a Movie Recommender](#building)
+  - [Dataset](#dataset)
   - [Data Preprocessing](#data-processing)
     - [Movie Feature Preprocessing](#movie-preprocessing)
     - [Movie Feature Vocab](#movie-vocab)
@@ -60,7 +58,7 @@ Just to give an idea of what we are going to build here, it's going to be a movi
     - [User Feature Vocab](#user-vocab)
   - [Generating Training Examples](#training-examples)
   - [Designing our Model Architecture](#model)
-  - [Building our Dataset](#dataset)
+  - [Building our Dataset](#dataset-build)
   - [Building our Model](#model-build)
   - [Training our Model](#training)
 - [Actually Using our Model](#using-model)
@@ -114,8 +112,12 @@ There are a few benefits to this approach:
 2. Model is more generalizable as it cannot just memorize labels for specific users
 3. User level cold start is much less of an issue
 
+<a id="building"></a>
+## Building a Movie Recommender
+Alright, let's start building our recommendation system!
+
 <a id="dataset"></a>
-## The Dataset
+### The Dataset
 In order to build a Movie recommendation system, we are going to use the [Movielens Dataset](https://grouplens.org/datasets/movielens/) which is provided by [GroupLens](https://grouplens.org/)
 
 In particular, we are going to use two datasets, one small and one large, to see the difference in quality of our system:
@@ -131,10 +133,6 @@ The data will consiste of two Pandas Dataframes we will read in:
 | ![Movies Table]({{ "/assets/MovieLens/df_movies.png" | absolute_url }}){:width="600px"} |
 |:--:| 
 | *Movies Table* |
-
-<a id="building"></a>
-## Building a Movie Recommender
-Alright, let's start building our recommendation system!
 
 <a id="data-processing"></a>
 ### Data Preprocessing
@@ -491,7 +489,7 @@ We will train this model by simply computing the loss of the actual user's ratin
 
 Backpropogation works normally even for this 'Two Tower' model. 
 
-<a id="dataset"></a>
+<a id="dataset-build"></a>
 ### Building our Dataset
 
 Now that you understand the inputs and output of our model, let's actually build the Dataset. It consists of 4 parts:
