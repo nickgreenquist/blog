@@ -66,6 +66,7 @@ Just to give an idea of what we are going to build here, it's going to be a movi
   - [Finding Most Similar Movies](#similar-movies)
   - [Inference: Getting Recommendations](#inference)
   - [Example Recommendations](#examples)
+- [Possible Improvements](#improvements)
 - [Appendix](#appendix)
   - [Visualizing Movies in 2D](#2d)
   - [Training Runs Losses](#training-runs)
@@ -644,7 +645,7 @@ Some notes:
 3. If we are doing a full validation run, we will use our validation Dataset pieces.
 4. [torch.einsum](https://pytorch.org/docs/stable/generated/torch.einsum.html) is how we will do batched dot products of our user and movie embeddings to get the final prediction.
 5. We will gradually decrease our learning rate. Hacky, but I didn't want to use some out of the box optimizer to show that this model still works with basic manual steps. 
-6. We log our loss for full training and full validation runs. 
+6. We record our loss during training and for full validation runs.
 
 ```python
 for i in range(50_000):
@@ -776,7 +777,7 @@ for movieId in top_movies:
                                        item_id_emb.view(item_id_emb.size(0), -1)), dim=1)
 ```
 
-Note: *MOVIE_EMBEDDING_COMBINED* will be the main embedding of each movie since it has the embedding of the movie itself and its features. 
+> Note: *MOVIE_EMBEDDING_COMBINED* will be the main embedding of each movie since it has the embedding of the movie itself and its features. 
 
 <a id="similar-movies"></a>
 ### Finding Most Similar Movies
@@ -801,16 +802,76 @@ for movieId in top_movies:
     movieId_to_emb_type_to_similarities[movieId][emb_type] = sorted(emb_to_target_to_dist.items(), key=lambda item: item[1])
 ```
 
-| Movie | Similar 1 | Similar 2 | Similar 3 | Similar 4 | Similar 5 |
-|-----|-----|-----|-----|-----|
-| Lord of the Rings: The Return of the King, The (2003) | Lord of the Rings: The Fellowship of the Ring, The (2001) | Lord of the Rings: The Two Towers, The (2002) | Hobbit: An Unexpected Journey, The (2012) | Gladiator (2000) | Dune (2021) | 
-| Star Wars: Episode IV - A New Hope (1977) | Star Wars: Episode V - The Empire Strikes Back (1980) | Star Wars: Episode VI - Return of the Jedi (1983) | Raiders of the Lost Ark (Indiana Jones and the Raiders of the Lost Ark) (1981) | Indiana Jones and the Last Crusade (1989) | Ghostbusters (a.k.a. Ghost Busters) (1984) | 
-| Toy Story (1995) | Toy Story 2 (1999) | Toy Story 3 (2010) | Monsters, Inc. (2001) | Inside Out (2015) | Bug's Life, A (1998) | 
-| Saving Private Ryan (1998) | Braveheart (1995) | Black Hawk Down (2001) | Last of the Mohicans, The (1992) | Untouchables, The (1987) | Dirty Dozen, The (1967) | 
-| Kill Bill: Vol. 1 (2003) | Ronin (1998) | French Connection, The (1971) | Run Lola Run (Lola rennt) (1998) | Sin City (2005) | Fistful of Dollars, A (Per un pugno di dollari) (1964) | 
-| American Pie (1999) | American Pie 2 (2001) | Liar Liar (1997) | Wedding Singer, The (1998) | Meet the Parents (2000) | Wedding Crashers (2005) | 
-| Blair Witch Project, The (1999) | Cell, The (2000) | Hostel (2005) | Saw II (2005) | Grudge, The (2004) | House on Haunted Hill (1999) | 
-| Princess Mononoke (Mononoke-hime) (1997) | Spirited Away (Sen to Chihiro no kamikakushi) (2001) | Howl's Moving Castle (Hauru no ugoku shiro) (2004) | Spider-Man: Into the Spider-Verse (2018) | Akira (1988) | Ghost in the Shell (Kôkaku kidôtai) (1995) | 
+
+#### Most Similar to: Lord of the Rings: The Return of the King, The (2003)
+```
+Lord of the Rings: The Fellowship of the Ring, The (2001)
+Lord of the Rings: The Two Towers, The (2002)
+Hobbit: An Unexpected Journey, The (2012)
+Gladiator (2000)
+Dune (2021)
+```
+
+
+#### Most Similar to: Star Wars: Episode IV - A New Hope (1977)
+```
+Star Wars: Episode V - The Empire Strikes Back (1980)
+Star Wars: Episode VI - Return of the Jedi (1983)
+Raiders of the Lost Ark (Indiana Jones and the Raiders of the Lost Ark) (1981)
+Indiana Jones and the Last Crusade (1989)
+Ghostbusters (a.k.a. Ghost Busters) (1984) 
+```
+
+
+#### Most Similar to: Toy Story (1995)
+```
+Toy Story 2 (1999)
+Toy Story 3 (2010)
+Monsters, Inc. (2001)
+Inside Out (2015)
+Bug's Life, A (1998)
+```
+
+
+#### Most Similar to: Saving Private Ryan (1998) 
+```
+Braveheart (1995)
+Black Hawk Down (2001)
+Last of the Mohicans, The (1992)
+Untouchables, The (1987)
+Dirty Dozen, The (1967)
+```
+
+
+#### Most Similar to: Kill Bill: Vol. 1 (2003)
+```
+Ronin (1998)
+French Connection, The (1971)
+Run Lola Run (Lola rennt) (1998)
+Sin City (2005)
+Fistful of Dollars, A (Per un pugno di dollari) (1964)
+```
+
+
+#### Most Similar to: American Pie (1999)
+```
+American Pie 2 (2001)
+Liar Liar (1997)
+Wedding Singer, The (1998)
+Meet the Parents (2000)
+Wedding Crashers (2005)
+```
+
+
+#### Most Similar to: Princess Mononoke (Mononoke-hime) (1997)
+```
+Spirited Away (Sen to Chihiro no kamikakushi) (2001)
+Howl's Moving Castle (Hauru no ugoku shiro) (2004)
+Spider-Man: Into the Spider-Verse (2018)
+Akira (1988)
+Ghost in the Shell (Kôkaku kidôtai) (1995)
+```
+
 
 <a id="inference"></a>
 ### Inference: Getting Recommendations
@@ -1051,6 +1112,32 @@ Seven Samurai (Shichinin no samurai) (1954)
 Star Wars: Episode IV - A New Hope (1977)
 Raiders of the Lost Ark (Indiana Jones and the Raiders of the Lost Ark) (1981)
 ```
+
+<a id="improvements"></a>
+## Possible Improvements
+Below are some possible ways to improve this current movie recommendation system:
+- Add better movie features
+  - Use the movie's year from the title as a feature (some people might like movies from certain eras)
+  - Use the movie's title as a bag of words feature (helps model find similar movies based on title)
+  - Find and use the movie's director/publisher (helps the model find similar movies based on who made them)
+  - Find and use the movie's actors (some people have favorite actors)
+  - Leverage MovieLen's 'movie tags' (requires lot of preprocessing but could be useful)
+- Add better user features
+  - Find and use the user's demographic features
+  - Leverage MovieLen's user occupation feature (only available for some datasets)
+  - Use the user's favorite 'decade' as a kind of genre feature (would work well if we added movie's decade-year)
+  - Use the user's favorite directors
+  - Use the user's favorire actors
+- Generate true training examples using the ratings timestamps
+  - Instead of randomly picking some movies to predict rating for, we can always use the last movies watched by the user as the labels and their earliest movie watches as their watch history
+- Add an attention/context component to the model [ADVANCED]
+  - Transformers are all the rage, and because users have an order in how they watched movies, we could use them.
+- Add movie reviews from IMDB or Rotten Tomatoes as text or sentiment features [ADVANCED]
+  - Reviews contain rich information about movies and also sentiment about if they are good or bad (in aggregate)
+- Build a Deeper model
+  -  This model is only one non-linear layer per input. We could go much deeper, ever after combining both user and item embeddings. 
+- Improve the model
+  - Add BatchNorm, Dropout
 
 <a id="appendix"></a>
 ## Appendix
