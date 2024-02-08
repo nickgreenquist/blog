@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Website
+title: Personal Website
 external_url: https://nickgreenquist.github.io/
 ---
 <!DOCTYPE html>
