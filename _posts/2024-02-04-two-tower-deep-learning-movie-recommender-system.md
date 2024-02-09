@@ -29,8 +29,8 @@ Recommender systems are used to decide:
 2. What product to buy next on Amazon
 3. What song to listen to next on Spotify
 4. What video to watch next on YouTube
-5. What post to show next on Instagram feed
-6. What destination to check out next on Booking
+5. What post to watch next on Instagram feed
+6. What vacation to book next on Booking.com
 
 <a id="sneak-peek"></a>
 ### Sneak Peek of this Post
@@ -66,10 +66,12 @@ Just to give an idea of what we are going to build here, it's going to be a movi
   - [Finding Most Similar Movies](#similar-movies)
   - [Inference: Getting Recommendations](#inference)
   - [Example Recommendations](#examples)
+    - [Anti-Recommendations](#anti-recs)
 - [Possible Improvements](#improvements)
 - [Appendix](#appendix)
   - [Visualizing Movies in 2D](#2d)
   - [Training Runs Losses](#training-runs)
+  - [Applying Recommendations to Other Domains](#other-domains)
 
 <a id="why-this-post"></a>
 ## Why this Post
@@ -81,7 +83,7 @@ For even more information on MF, please look at these blog posts for [a technica
 
 <a id="deep-rec"></a>
 ### Deep Recommender Systems
-The main approach I wanted to focus on is the 'Two Tower' Deep Learning Architecture. The main idea is this: you want to recommend users to items (i.e. movies, products, songs, etc). You have features for users (what they have already watched/bought/clicked/etc, demographic information, etc.) and features for items (the genre of you movie/song, the artists/actors, the year, etc.). Can we shove all these features into a Neural Net and get good recommendations (hint: yes)?
+The main approach I wanted to focus on is the 'Two Tower' Deep Learning Architecture. The idea is this: you want to recommend users to items (i.e. movies, products, songs, etc). You have features for users (what they have already watched/bought/clicked/etc, demographic information, etc.) and features for items (the genre of you movie/song, the artists/actors, the year, etc.). Can we shove all these features into a Neural Net and get good recommendations (hint: yes)?
 
 There are some great tutorials on how to build modern day model architectures (including Two Tower models) to train a recommendation system model. Here is a list of a few of them:
 1. [Scaling deep retrieval with TensorFlow Recommenders and Vertex AI Matching Engine](https://cloud.google.com/blog/products/ai-machine-learning/scaling-deep-retrieval-tensorflow-two-towers-architecture)
@@ -93,18 +95,18 @@ BUT: they all have serious a common serious drawback: NONE show you how to 'actu
 
 <a id="core-issue"></a>
 ### The Core Issue
-All of the above examples (and others I could find) use the traditional approach of embedding the unique user ids (or hashes of something unique like a username) and movie ids (like an Amazon product id) to train the model. However, this means that you can ONLY perform inference for a user that has been trained. If you want to run inference on a user id that you did not train on, you won't have an embedding for the and are out of luck. If a new user wanted to use this model, your only solutions are:
+All of the above examples (and others I could find) use the traditional approach of embedding the unique user ids (or hashes of something unique like a username) and movie ids (like an Amazon product id) to train the model. However, this means that you can ONLY perform inference for a user or item that has been trained. If you want to run inference on a user id that you did not train on, you won't have an embedding for them and are out of luck. If a new user wanted to use this model, your only solutions are:
 1. Retrain the entire model
 2. Try to partial fit your new user into the model with some training steps
 3. Find a user that is close to the new user and use their embedding
 
 <a id="goal"></a>
 ### The Goal
-Instead, I wanted to set out to build a model that can generalize to any user, as long as you just provide a few examples of items they alreay enjoyed (i.e. when you sign up to Nickflix Movie Streaming, you click on a few movies you like). The model should embed features of the user, not the unique user themselves. This is different than most other tutorials is that we will NOT map each user id to an embedding. Instead, we will treat each user as a feature vector made up of only two things:
-1. Their Watch History: list of movies they have rated
-2. Their Genre Preferences: the average rating for each possible genre. 
+Instead, I wanted to set out to build a model that can generalize to any user, as long as you just provide a few examples of items they alreay enjoyed (i.e. when you sign up to Nick-flix Movie Streaming, you click on a few movies you like). The model should embed features of the user, not the unique user themselves. This is different than most other tutorials is that we will NOT map each user id to an embedding. Instead, for our simple example, we will treat each user as a feature vector made up of only two things:
+1. Their Watch History: list of movies they have liked/disliked
+2. Their Genre Preferences: the average rating for each possible genre
 
-This way, after the model is trained, it can be used to get recommendations for any user as long as we have even a few movies they like and maybe some genres they prefer or don't prefer. 
+This way, after the model is trained, it can be used to get recommendations for any user as long as we have even a few movies they like (maybe some genres they prefer or don't prefer). 
 
 <a id="benefits"></a>
 #### Benefits
@@ -112,6 +114,17 @@ There are a few benefits to this approach:
 1. Do not need to retrain model as often
 2. Model is more generalizable as it cannot just memorize labels for specific users
 3. User level cold start is much less of an issue
+
+#### *A Note about Item Cold Start*
+Removing the user id from the model helps generalize to more users, and also reduces user cold start. But what about item cold start (new item, so no item id in the model). To get around this, it's also possible to remove the item id from the model input and only use item features as inputs. 
+
+This post does a great job explaining how having NO ids helps with cold start: [Solving the Cold-Start Problem using Two-Tower Neural Networks for NVIDIA’s E-Mail Recommender Systems](https://medium.com/nvidia-merlin/solving-the-cold-start-problem-using-two-tower-neural-networks-for-nvidias-e-mail-recommender-2d5b30a071a4)
+
+As with all things, there are tradeoffs. By removing the item id, you will lose a lot of rich information about how users interact with unique items. However, you massively reduce cold start. 
+
+Some domains might be better or worse to keep or remove ids: Amazon has millions of products and probably thousands added each day that need to be recommended. They could benefit from removing unique item ids from their models. Netflix, on the other hand, might only have a few dozen movies added per month to their catalog. They might want to keep the movie id and retrain their model more frequently. 
+
+Another possibility is to train a normal model with id embeddings, and then a second model with just features. You can then mix and match the results of both. 
 
 <a id="building"></a>
 ## Building a Movie Recommender
@@ -125,7 +138,14 @@ In particular, we are going to use two datasets, one small and one large, to see
 1. MovieLens Small - 100,000 ratings, 9,000 movies, 600 users.
 2. MovieLens Latest - 33,000,000 ratings, 86,000 movies, 330,975 users.
 
-The data will consiste of two Pandas Dataframes we will read in:
+We can read in this data as a Pandas Dataframe with no complext file input code like this:
+```python
+num_ratings_to_read = 25_000_000 # 33,000,000 ratings too large for RAM, so read ~25M
+
+df_ratings = pd.read_csv('ratings.csv', nrows=num_ratings_to_read)
+```
+
+The data will consists of two Pandas Dataframes we will read in:
 
 | ![Ratings Table]({{ "/assets/MovieLens/df_ratings.png" | absolute_url }}){:width="300px"} |
 |:--:| 
@@ -138,14 +158,17 @@ The data will consiste of two Pandas Dataframes we will read in:
 <a id="data-processing"></a>
 ### Data Preprocessing
 
-First, we need to clean the data as any 'nan' values can completely ruin our training (spend many hours debugging my model, adding gradient clipping, batch norm, etc. Turn out there is a single nan value in MovieLens). We also convert movie ids to ints so they behave better as lookup keys.
+First, we need to clean the data as any 'nan' values can completely ruin our training (I sadly spent many hours debugging my model, adding gradient clipping, batch norm, etc. Turns out there is a single nan value in MovieLens). We also convert movie ids to ints so they behave better as lookup keys.
 ```python
 # clean the ratings data
 df_ratings = df_ratings.dropna()
 df_ratings['movieId'] = df_ratings['movieId'].astype(int, copy=False)
 ```
 
-Next, let's shrink down how many movies we care about. This is just for memory reasons, although it can often be helpful in the real world pythonto not even bother training with items/movies you have that barely have any interactions.
+Next, let's shrink down how many movies we care about. 
+
+> NOTE: This is just for memory reasons. Google colab only gives you 12GB of RAM, so I can't train on all movies. However, it can often be helpful even in the real world to not even bother training with items/movies you have that barely have any interactions.
+
 ```python
 # let's only work with movies with enough ratings.
 min_ratings_per_movie = 1000
@@ -165,6 +188,8 @@ top_movies = df_movies_to_num_ratings.movieId.tolist()
 # total movies in corpus:  58136
 # movies with enough ratings:  2071
 ```
+
+
 <a id="movie-preprocessing"></a>
 #### Movie Feature Preprocessing
 Let's start processing some important info we need for our movies. 
@@ -904,7 +929,9 @@ user_type_to_favorite_genres = {
     'Children\'s Movie Lover': ['Children'],
     'Horror Lover': ['Horror'],
     'Sci-Fi Lover': ['Sci-Fi'],
-    'Comedy Lover': ['Comedy']
+    'Comedy Lover': ['Comedy'],
+    'Romance Lover': ['Romance'],
+    'War Movie Lover': ['War']
 }
 
 user_type_to_worst_genres = {
@@ -912,14 +939,17 @@ user_type_to_worst_genres = {
     'Children\'s Movie Lover': ['Horror', 'Romance', 'Drama'],
     'Horror Lover': ['Children'],
     'Sci-Fi Lover': ['Romance', 'Children'],
-    'Comedy Lover': ['Children']
+    'Comedy Lover': ['Children'],
+    'Romance Lover': ['Children', 'Horror'],
+    'War Movie Lover': ['Children']
 }
 
 user_type_to_favorite_movies = {
     'Fantasy Lover': [
         'Lord of the Rings: The Fellowship of the Ring, The (2001)',
         'Gladiator (2000)',
-        '300 (2007)'
+        '300 (2007)',
+        'Braveheart (1995)'
         ],
     'Children\'s Movie Lover': [
         'Toy Story 2 (1999)',
@@ -941,7 +971,17 @@ user_type_to_favorite_movies = {
         'Dumb & Dumber (Dumb and Dumber) (1994)',
         'Austin Powers: The Spy Who Shagged Me (1999)',
         'Big Lebowski, The (1998)'
-      ]
+      ],
+    'Romance Lover': [
+        'Shakespeare in Love (1998)',
+        'There\'s Something About Mary (1998)',
+        'Sense and Sensibility (1995)'
+    ],
+    'War Movie Lover': [
+        'Saving Private Ryan (1998)',
+        'Apocalypse Now (1979)',
+        'Full Metal Jacket (1987)'
+    ]
 }
 
 user_to_inference_context = {}
@@ -1112,6 +1152,111 @@ Star Wars: Episode IV - A New Hope (1977)
 Raiders of the Lost Ark (Indiana Jones and the Raiders of the Lost Ark) (1981)
 ```
 
+#### Romance Lover
+```
+Hello, Romance Lover
+Because you like: [Romance]
+And hate: [Children,Horror]
+
+And enjoyed these movies:
+Shakespeare in Love (1998)
+There's Something About Mary (1998)
+Sense and Sensibility (1995)
+
+You should watch:
+Life Is Beautiful (La Vita è bella) (1997)
+Casablanca (1942)
+Roman Holiday (1953)
+Shawshank Redemption, The (1994)
+Singin' in the Rain (1952)
+Rebecca (1940)
+Good Will Hunting (1997)
+Forrest Gump (1994)
+Pride & Prejudice (2005)
+Modern Times (1936)
+```
+
+#### War Movie Lover
+```
+Hello, War Movie Lover
+Because you like: [War]
+And hate: [Children]
+
+And enjoyed these movies:
+Saving Private Ryan (1998)
+Apocalypse Now (1979)
+Full Metal Jacket (1987)
+
+You should watch:
+Schindler's List (1993)
+Shawshank Redemption, The (1994)
+Boot, Das (Boat, The) (1981)
+Godfather, The (1972)
+Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb (1964)
+Grave of the Fireflies (Hotaru no haka) (1988)
+Great Dictator, The (1940)
+Ran (1985)
+Pulp Fiction (1994)
+Lawrence of Arabia (1962)
+```
+
+
+<a id="anti-recs"></a>
+#### Anti-Recommendations
+What are the WORST movies for certain types of users? Do we get their least favorite genres?
+
+To get anti-recommendations, we just print the bottom 10 (lowest predicted score) recommendations. 
+
+#### Children's Movie Lover - Anti Recs
+Hilariously, among the worst movies for someone who likes Children's Movies, hates Horror and Romance, are Twilight and Nightmare on Elm Street. Those are definitely the worst possible movies for this user. 
+```
+Hello, Children's Movie Lover
+Because you like: [Children]
+And hate: [Horror,Romance,Drama]
+
+And enjoyed these movies:
+Toy Story 2 (1999)
+Finding Nemo (2003)
+Monsters, Inc. (2001)
+
+You should NOT watch:
+Twilight Saga: New Moon, The (2009)
+Legends of the Fall (1994)
+Twilight (2008)
+Boxing Helena (1993)
+Lost Highway (1997)
+Wolf (1994)
+Bodyguard, The (1992)
+Amityville Horror, The (1979)
+Wes Craven's New Nightmare (Nightmare on Elm Street Part 7: Freddy's Finale, A) (1994)
+Mulholland Drive (2001)
+```
+
+#### Horor Movie Lover - Worst Recs
+For someone who loves Horror and hates Children's movies, recommending Home Alone 3, Karate Kid, Free Willy, and Happy Feet are definitely some delightfully bad recommendations.
+```
+Hello, Horror Lover
+Because you like: [Horror]
+And hate: [Children]
+
+And enjoyed these movies:
+Blair Witch Project, The (1999)
+Silence of the Lambs, The (1991)
+Sixth Sense, The (1999)
+
+You should NOT watch:
+Inspector Gadget (1999)
+Next Karate Kid, The (1994)
+Home Alone 3 (1997)
+Free Willy 2: The Adventure Home (1995)
+Pocahontas (1995)
+Super Mario Bros. (1993)
+Happy Feet (2006)
+Free Willy (1993)
+Karate Kid, Part III, The (1989)
+Honey, I Blew Up the Kid (1992)
+```
+
 <a id="improvements"></a>
 ## Possible Improvements
 Below are some possible ways to improve this current movie recommendation system:
@@ -1170,3 +1315,18 @@ Below we will train the model on different datasets and with different model par
 | Large | Small | No overfitting, but not learning well | ![]({{ "/assets/MovieLens/large-small-loss.png" | absolute_url }}){:width="600px"}
 | Large | Medium | No overfitting, but hitting a wall | ![]({{ "/assets/MovieLens/large-medium-loss.png" | absolute_url }}){:width="600px"}
 | Large | Large | Looking much better. Loss much lower than pervious runs | ![]({{ "/assets/MovieLens/large-large-loss.png" | absolute_url }}){:width="600px"}
+
+<a id="other-domains"></a>
+### Applying Recommendations to Other Domains
+
+> NOTE: The below user/item features might be subpar for some domains. These ideas are how I would approach recommending items in each domain as a start. If you want more advanced descriptions, companies usually post techincal blogs about how they recommend content. 
+
+| Domain | User Features | Item Features
+|--------|---------------|
+| Online Shopping | Purchases <br> Returns (negative signal) <br> Reviews/Ratings <br> Favorite Categories <br> Country/City/State <br> Yearly Purchase Count <br> Yearly Purchase USD | Brand <br> Title <br> Price <br> Category <br> Reviews <br> Number of Returns |
+| Books | Liked/Disliked Books <br> Liked/Disliked Genres <br>Liked/Disliked Authors | Title <br>Genres <br>Book text (bag of words) <br>Published Year |
+| Music Streaming | Listened to Songs (with counts) <br> Listened to Artists (with counts) <br> Favorite Genres <br> Time of Day of Listens <br> Day of week of listens <br> Country/State/City <br> Language | Title <br> Genre <br> Artist <br> Listens <br> Release Date <br> *ADVANCED*: Embedding of Audio File |
+| Social Media | Liked Posts <br> Posts with > X seconds hover <br> Following Account Ids <br> Followers Account Ids <br> Country/State/City <br> Language <br> Comments | Account Id  <br> Bag of Words of Text/Caption <br> Views per hour <br> Likes <br> Comments <br> Comments Text <br> *ADVANCED* Embedding of Image |
+| Hotel Bookings | Past Bookings: Location <br> Past Bookings: Hotel <br> Favorite Hotel Brands <br> Favorite Amenities <br> Location Booking Count <br> Viewed/Clicked Locations <br> Viewed/Clicked Hotels <br> Country <br> Language <br> Bookings in past year <br> USD Spend in past year | Location <br> Brand <br> Price <br> Stars <br> Reviews <br> Amenities |
+| Ads | Ad Purchase History <br> Ad Click History  <br> Ad Spend USD last year <br> Favorite Brands <br> Country/City/State <br> Age <br> Gender <br><br> Dependent on site serving the ads: <br> Interests <br> Page Clicks <br> Searches | Brand <br> Product Categories <br> Product Price(s) <br> Clicks <br> Click thru Rate <br> Purchases <br> Impressions <br> Long Views |
+
