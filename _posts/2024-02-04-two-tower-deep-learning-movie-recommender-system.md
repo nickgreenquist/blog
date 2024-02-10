@@ -20,7 +20,7 @@ Recommender systems play a crucial role in content-serving websites such as TikT
 
 <a id="what-is"></a>
 ### What is a recommender system?
-In my own words: a recommender system's job is to match users to content. They score/rank which content to show based on some pre-determined metric to optimize (i.e. what content will the user find most relevant or engaging). Recommendation Systems exist because many platforms have thousands (or millions) of 'things' they could show their users, and screen real estate is extremely valuable, so they help the platforms show only what they think the user will like. Without them, it would also be impossible for the user to sift through millions of options. 
+In my own words: a recommender system's job is to match users to content. They score/rank which content to show based on some pre-determined metric to optimize (i.e. what content will the user find most relevant or engaging). Recommendation Systems exist because many platforms have thousands (or millions) of 'things' they could potentially show their users, and screen real estate is extremely valuable, so they help the platforms show only what they think the user will like. Without them, it would also be impossible for the user to sift through millions of options. 
 
 <a id="use-cases"></a>
 ### Use Cases
@@ -75,9 +75,9 @@ Just to give an idea of what we are going to build here, it's going to be a movi
 
 <a id="why-this-post"></a>
 ## Why this Post
-There are already hundreds (probably thousands) of posts/tutorials/follow-alongs on 'how to build a movie recommender system'. However, most of them are really really not useful. 90% of them just read in the dataset, perform cosine similarity on some vectors made out of the users and movies, show off some recommendations that make no sense, and call it a day. 10% will actually use Machine Learning, and of these, 90% will just do some variation of user-to-item matrix factorization and stop after they spit out some loss metrics (i.e. they won't even show how it can be used).
+There are already hundreds (probably thousands) of posts/tutorials/follow-alongs on 'how to build a movie recommender system'. However, most of them are really really not useful. 90% of them just read in the dataset, perform cosine similarity on some vectors made out of the users and movies, show off some recommendations that make little sense, and call it a day. 10% will actually use Machine Learning, and of these, 90% will just do some variation of user-to-item matrix factorization and stop after they spit out some loss metrics (i.e. they won't even show how it can be used).
 
-Don't get me wrong, MF is a great aproach to recommendation systems (I [created a book recommendation system using it](https://nickgreenquist.github.io/blog/projects/2018/06/08/building-books2rec.html), and even [wrote and entire CUDA library to parallelize it](https://nickgreenquist.github.io/blog/projects/2019/01/02/cu2rec.html)), but it's not 'state of the art' anymore. The main drawback of basic MF is that does not incorporate rich user/item features in how it learns to predict ratings/interactions. 
+Don't get me wrong, MF is a great aproach to recommendation systems (I helped create a [book recommendation system using it](https://nickgreenquist.github.io/blog/projects/2018/06/08/building-books2rec.html), and even helped write an entire [CUDA library to parallelize it](https://nickgreenquist.github.io/blog/projects/2019/01/02/cu2rec.html)), but it's not 'state of the art' anymore. The main drawback of basic MF is that does not incorporate rich user/item features in how it learns to predict ratings/interactions. 
 
 For even more information on MF, please look at these blog posts for [a technical explanation of Matrix Factorization](https://dorukkilitcioglu.github.io/2018/09/10/representation-learning-matrix-factorization.html) and [an application of Matrix Factorization for book recommendation](https://dorukkilitcioglu.github.io/2018/05/14/introducing-books2rec.html).
 
@@ -102,7 +102,7 @@ All of the above examples (and others I could find) use the traditional approach
 
 <a id="goal"></a>
 ### The Goal
-Instead, I wanted to set out to build a model that can generalize to any user, as long as you just provide a few examples of items they alreay enjoyed (i.e. when you sign up to Nick-flix Movie Streaming, you click on a few movies you like). The model should embed features of the user, not the unique user themselves. This is different than most other tutorials is that we will NOT map each user id to an embedding. Instead, for our simple example, we will treat each user as a feature vector made up of only two things:
+Instead, I wanted to set out to build a model that can generalize to any user, as long as you provide even a few examples of items they alreay enjoyed (i.e. when you sign up to Nick-flix Movie Streaming, you click on a few movies you like). The model should embed features of the user, not the unique user themselves. This is different than most other tutorials in that we will NOT map each user id to an embedding. Instead, for our simple example, we will treat each user as a feature vector made up of only two pieces of information:
 1. Their Watch History: list of movies they have liked/disliked
 2. Their Genre Preferences: the average rating for each possible genre
 
@@ -116,7 +116,7 @@ There are a few benefits to this approach:
 3. User level cold start is much less of an issue
 
 #### *A Note about Item Cold Start*
-Removing the user id from the model helps generalize to more users, and also reduces user cold start. But what about item cold start (new item, so no item id in the model). To get around this, it's also possible to remove the item id from the model input and only use item features as inputs. 
+Removing the user id from the model helps generalize to more users, and also reduces user cold start. But what about item cold start (new item, so no item id in the model)? To get around this, it's also possible to remove the item id from the model input and only use item features as inputs. 
 
 This post does a great job explaining how having NO ids helps with cold start: [Solving the Cold-Start Problem using Two-Tower Neural Networks for NVIDIA’s E-Mail Recommender Systems](https://medium.com/nvidia-merlin/solving-the-cold-start-problem-using-two-tower-neural-networks-for-nvidias-e-mail-recommender-2d5b30a071a4)
 
@@ -132,17 +132,18 @@ Alright, let's start building our recommendation system!
 
 <a id="dataset"></a>
 ### The Dataset
-In order to build a Movie recommendation system, we are going to use the [Movielens Dataset](https://grouplens.org/datasets/movielens/) which is provided by [GroupLens](https://grouplens.org/)
+In order to build a Movie recommendation system, we are going to use the [MovieLens Dataset](https://grouplens.org/datasets/movielens/) which is provided by [GroupLens](https://grouplens.org/)
 
-In particular, we are going to use two datasets, one small and one large, to see the difference in quality of our system:
+In particular, we are going to use two datasets, one small and one large:
 1. MovieLens Small - 100,000 ratings, 9,000 movies, 600 users.
 2. MovieLens Latest - 33,000,000 ratings, 86,000 movies, 330,975 users.
 
-We can read in this data as a Pandas Dataframe with no complext file input code like this:
-```python
-num_ratings_to_read = 25_000_000 # 33,000,000 ratings too large for RAM, so read ~25M
+The small dataset does not lead to good results, but it is better to use while building and testing our code. 
 
-df_ratings = pd.read_csv('ratings.csv', nrows=num_ratings_to_read)
+We can read in this data as a Pandas Dataframe easily like this:
+```python
+df_ratings = pd.read_csv('ratings.csv')
+df_movies = pd.read_csv('movies.csv')
 ```
 
 The data will consists of two Pandas Dataframes we will read in:
@@ -158,7 +159,7 @@ The data will consists of two Pandas Dataframes we will read in:
 <a id="data-processing"></a>
 ### Data Preprocessing
 
-First, we need to clean the data as any 'nan' values can completely ruin our training (I sadly spent many hours debugging my model, adding gradient clipping, batch norm, etc. Turns out there is a single nan value in MovieLens). We also convert movie ids to ints so they behave better as lookup keys.
+First, we need to clean the data as any 'nan' values can completely ruin our training (I spent many hours debugging my model, adding gradient clipping, batch norm, etc. Turns out there is a single nan value in MovieLens). We also convert movie ids to ints so they behave better as lookup keys.
 ```python
 # clean the ratings data
 df_ratings = df_ratings.dropna()
@@ -167,7 +168,7 @@ df_ratings['movieId'] = df_ratings['movieId'].astype(int, copy=False)
 
 Next, let's shrink down how many movies we care about. 
 
-> NOTE: This is just for memory reasons. Google colab only gives you 12GB of RAM, so I can't train on all movies. However, it can often be helpful even in the real world to not even bother training with items/movies you have that barely have any interactions.
+> NOTE: This is just for memory reasons. Google colab only gives you 12GB of RAM, so I can't createa embeddings and feature vectors for all 50k+ movies.
 
 ```python
 # let's only work with movies with enough ratings.
@@ -229,7 +230,6 @@ for i in range(len(movieId_list)):
 
 Let's take a look at our top movies
 ```python
-# print the top movies
 for movieId in top_movies[0:10]:
   print(movieId, movieId_to_title[movieId], movieId_to_num_ratings[movieId])
 ```
@@ -285,16 +285,16 @@ for i in range(len(movieId_list)):
 <a id="movie-vocab"></a>
 #### Movie Feature Vocab
 
-This is a pretty important part of the data prep. Setting up a feature vocab is needed to correctly map movie ids and movie features (i.e. only genres in our case) to input vectors to the model. 
+This is a pretty important part of the data prep. Setting up a feature vocab is needed to correctly map movie ids and movie features (i.e. only genres in our case) to the correct indices in input feature vectors.
 
-Below, we map each unique movie id we have in top_movies to a unique index 'i'. This will allow us to look up this movie's embedding efficiently. 
+Below, we map each unique movie id we have in top_movies to a unique index *i*. This will allow us to look up this movie's embedding efficiently. 
 ```python
 # build ITEM movieId embedding mapping
 item_emb_movieId_to_i = {s:i for i,s in enumerate(top_movies)}
 item_emb_i_to_movieId = {i:s for s,i in item_emb_movieId_to_i.items()}
 ```
 
-Below, we map each unique genre to an index 'i' that will be used to set each moveie's genres in vector form. For example, if we had 3 genres, 'Action', 'Horror', and 'Comedy', we could map 'Action' to index 0, 'Horror' to index 1, and 'Comedy' to index 2. Therefore, and genre vector representation of movie that is an 'Action Comedy' movie would be [1, 0, 1].
+Below, we map each unique genre to an index *i* that will be used to set each moveie's genres in vector form. For example, if we had 3 genres, 'Action', 'Horror', and 'Comedy', we could map 'Action' to index 0, 'Horror' to index 1, and 'Comedy' to index 2. Therefore, and genre vector representation of movie that is an 'Action Comedy' movie would be [1, 0, 1].
 ```python
 # build ITEM genre feature context
 genre_to_i = {s:i for i,s in enumerate(genres)}
@@ -304,7 +304,7 @@ i_to_genre = {i:s for s,i in genre_to_i.items()}
 <a id="user-preprocessing"></a>
 #### User Feature Preprocessing
 
-Every user will have a feature context that will mostly be their watch history. Instead of using every movie in the corpus, we can use a smaller subset. This helps with memory issues. 
+Every user will have a feature context that will mostly be their watch history. Instead of using every movie in the corpus, we can use a smaller subset. This also helps with memory issues. 
 ```python
 num_movies_for_user_context = 250
 user_context_movies = top_movies[:num_movies_for_user_context]
@@ -330,7 +330,7 @@ Our user vocab will be slighly different than our movie vocab. This is because w
 1. The movies the user has already watched
 2. The avg rating per genre for this user (think of this as the user's preferences)
 
-It is entirely possible that two unique users have the same feature vector representation.
+This means it is entirely possible that two unique users have the same feature vector representation.
 
 ```python
 # build the USER context
@@ -356,7 +356,7 @@ For a user that liked Movie1 and disliked Movie3, and likes Action and Comedy bu
 <a id="training-examples"></a>
 ### Generating Training Examples
 
-Simulate training examples by masking out some of the user's watched movies from their context, and using them as labels. We do not want the 'movie to predict' in their watch history, as we are trying to simulate the following: given the user's other watched movies, what would they rate this new movie?
+Next, we simulate real world training examples by masking out some of the user's watched movies from their context, and using them as labels. We do not want the 'movie to predict' in their watch history, as we are trying to simulate the following: given the user's other watched movies, what would they rate this new movie?
 
 > NOTE: this is not the same as a train/test split. This is just simulating how training examples would look like on a movie platform. 
 
@@ -598,13 +598,13 @@ X_val, Y_val, target_movieId_val, target_movieId_context_val = build_dataset(val
 <a id="model-build"></a>
 ### Building our Model
 
-Below, we will actually build from scratch the entire model (i.e. all the weights and biases). Notice the input dimensions of each of the parts. Each weight matrix links up to one of our inputs. *i_W1* will match the dimensions of the movie feature vector, which is the number of genres. *e_W1* is anything we want since we are creating an *ITEM_EMBEDDING_LOOKUP*. If this concept is confusing, please see Andrej Karpathy's amazing series: [Neural Networks: Zero to Hero](https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ).
+Below, we will actually build from scratch the entire model (i.e. all the weights and biases). Notice the input dimensions of each of the parts. Each weight matrix links up to one of our inputs. *i_W1* will match the dimensions of the movie feature vector, which is the number of genres. *e_W1* is any size we want since we are creating an *ITEM_EMBEDDING_LOOKUP*. If this concept is confusing, please see Andrej Karpathy's amazing series: [Neural Networks: Zero to Hero](https://www.youtube.com/playlist?list=PLAqhIrjkxbuWI23v9cThsA9GvCAUhRvKZ).
 
 > NOTE: using an embedding lookup table is no different than simply creating a one-hot encoded vector of size len(top_movies) and just multiplying it by some matrix. However, that way is extremely inefficient and I was unable to train any decently sized model due to RAM constraints.
 
 Few other small points:
-1. I scale the weights down a little to prevent early training iterations having crazy loss. If this was an actual production model, I'd probably apply BatchNorm on it, but that is for a different day. 
-2. I'm using MSELoss which means we will get the average 'Square Error' loss on all examples. This just means we square the difference of the real rating vs the predicted rating. 
+1. I scale the weights down a little to prevent early training iterations having crazy loss. If this was an actual production model, I'd probably apply BatchNorm on it.
+2. I'm using MSELoss which means we will get the average 'Squared Error' loss on all examples. This just means we square the difference of the real rating vs the predicted rating. 
 3. We set a batch size of 64. 
 4. I create two lists to hold our loss for our full training set and validation set. We will plot this later. 
 
@@ -661,24 +661,24 @@ loss_val = []
 <a id="training"></a>
 ### Training our Model
 
-Below is the actual code to train our model without the use of any Pytorch library. I do this so we can control and study every single part. 
+Below is the actual code to train our model without the use of any Pytorch library. I write this all out manually versus using a Torch Module so we can control and study every single part and really understand each step. 
 
 Some notes:
-1. It's hacky, but I mod our current training iteration *i* by 1000 so that every 1000 iterations, we can see what our model's loss is on the full training set and full validation set. Technically we compute our validation loss on the *i+1* iteration after we do the full training set. 
-2. If we are doing a full train run or validation run, we will not backprop (won't train)
+1. Every 1000 iterations, we will compute our loss on the full validation set.  
+2. If we are doing a validation run, we will not backprop (won't train)
 3. If we are doing a full validation run, we will use our validation Dataset pieces.
 4. [torch.einsum](https://pytorch.org/docs/stable/generated/torch.einsum.html) is how we will do batched dot products of our user and movie embeddings to get the final prediction.
-5. We will gradually decrease our learning rate. Hacky, but I didn't want to use some out of the box optimizer to show that this model still works with basic manual steps. 
-6. We record our loss during training and for full validation runs.
+5. We will gradually decrease our learning rate. We could use an optimizer, but I wanted to avoid Torch libraries. 
+6. We record our avg loss during training and for each full validation runs.
 
 ```python
-for i in range(50_000):
+log_every = 1000
 
-  # every so often, let's train and compute loss on entire training set
-  is_full_train_run, is_full_val_run = False, False
-  if i % 1000 == 0:
-    is_full_train_run = True
-  if i % 1000 == 1:
+for i in range(0, 50_000):
+
+  # every so often, let's train and compute loss on entire validation set
+  is_full_val_run = False
+  if i % log_every == 0:
     is_full_val_run = True
 
   # select training example inputs we use for this run, and minibatch indices.
@@ -694,7 +694,7 @@ for i in range(50_000):
 
   # construct a minibatch
   ix = torch.randint(0, X.shape[0], (minibatch_size,))
-  if is_full_train_run or is_full_val_run:
+  if is_full_val_run:
     ix = torch.randint(0, X.shape[0], (X.shape[0],))
 
   # ---------- FORWARD PASS ----------
@@ -731,37 +731,47 @@ for i in range(50_000):
 
     # update weights using gradients * learning_rate
     lr = 0.1
-    if i >= 10_000: lr = 0.01
-    if i >= 30_000: lr = 0.001
+    if i >= 10_000: lr = 0.05
+    if i >= 20_000: lr = 0.01
+    if i >= 30_000: lr = 0.005
     for p in parameters:
       p.data += (lr * -p.grad)
 
-  # every so often, log the MSE loss on full training set (see above):
-  if is_full_train_run:
-    loss_train.append(output.item())
-    print("[TRAIN] i: ", i, " | ", "loss: ", output.item())
+  # every so often, log the MSE loss on full val set (see above)
   if is_full_val_run:
     loss_val.append(output.item())
+
+    if i >= log_every:
+      avg_train_loss_last_batches = np.mean(loss_train[i-log_every:i])
+    else:
+      avg_train_loss_last_batches = output.item()
+    print("[TRAIN] i: ", i, " | ", "loss: ", avg_train_loss_last_batches)
     print("[VAL] i: ", i, " | ", "loss: ", output.item())
     print()
+  else:
+    loss_train.append(output.item())
 ```
 
 As the model trains, we should see something liks this being printed:
 ```
 [TRAIN] i:  0  |  loss:  0.9906623363494873
-[VAL] i:  1  |  loss:  1.0060031414031982
+[VAL] i:  0  |  loss:  1.0060031414031982
 
 [TRAIN] i:  1000  |  loss:  0.8815735578536987
-[VAL] i:  1001  |  loss:  0.896892786026001
+[VAL] i:  1000  |  loss:  0.896892786026001
 
 [TRAIN] i:  2000  |  loss:  0.8524652123451233
-[VAL] i:  2001  |  loss:  0.8721503019332886
+[VAL] i:  2000  |  loss:  0.8721503019332886
 ```
 
 Finally, we can plot our training and validation losses versus each iteration.
 ```python
-plt.plot([i*1000 for i in range(len(loss_train))], loss_train)
-plt.plot([i*1000 for i in range(len(loss_val))], loss_val)
+loss_train_bucket_means = []
+for i in range(0, len(loss_train), log_every):
+  loss_train_bucket_means.append(np.mean(loss_train[i:i+log_every]))
+
+plt.plot([i*1000 for i in range(len(loss_train_bucket_means))], loss_train_bucket_means)
+plt.plot([i*1000 for i in range(1, len(loss_val))], loss_val[1:])
 ```
 
 It will look something like this:
@@ -773,12 +783,12 @@ It will look something like this:
 <a id="using-model"></a>
 ## Actually Using our Model
 
-Now for the fun part: let's actually use this thing to generate recommendations for different types of users we might see (if we were Netflix for example).
+Now for the fun part: let's actually use this trained model to generate recommendations for different types of users we might see (if we were Netflix for example).
 
 <a id="movie-embeddings"></a>
 ### Precomputing Movie Embeddings
 
-In oder to get recommendations, we will feed in a new user feature vector through our model, and get a prediction for each movie. However, to get a prediction we also need the item embeddings in order to do the dot product with the user embedding. For different users, we don't need to recompute these embeddings: once we have them for every movie in our catalog, we can re-use them!
+In oder to get recommendations, we will feed in a new user feature vector through our model, and get a predicted rating for every movie in *top_movies*. To get a prediction for a movie, we need the item embedding in order to do the dot product with the user embedding. For different users, we don't need to recompute these embeddings: once we have them for every movie in our catalog, we can re-use them!
 
 We can compute our final embeddings for every movie all at once, then save them to a lookup map, and then easily use them later for any user (no need to ever do a forward pass in the Item Tower).
 
@@ -800,8 +810,6 @@ for movieId in top_movies:
   movieId_to_embedding[movieId]['MOVIE_EMBEDDING_COMBINED'] = torch.cat((item_feature_emb.view(item_feature_emb.size(0), -1),
                                        item_id_emb.view(item_id_emb.size(0), -1)), dim=1)
 ```
-
-> Note: *MOVIE_EMBEDDING_COMBINED* will be the main embedding of each movie since it has the embedding of the movie itself and its features. 
 
 <a id="similar-movies"></a>
 ### Finding Most Similar Movies
@@ -901,17 +909,17 @@ Ghost in the Shell (Kôkaku kidôtai) (1995)
 ### Inference: Getting Recommendations
 Now for the best part: let's actually get some recommendations for different types of movie lovers!
 
-To get recommendations, we want to build the user's feature vector based on the genres they like/dislike and the movies they liked/disliked. Then, we pass the user's context through the user weight matrix *u_W1* and that gives us the final user embedding. We then just compute the dot product with the combined item embedding and we will get a predicted rating!
+To get recommendations, we want to build the user's feature vector based on the genres they like/dislike and the movies they liked/disliked. Then, we pass the user's context through the user weight matrix *u_W1* and that gives us the final user embedding. We then just compute the dot product with the combined item embedding of all movies and we will get a predicted rating for every movie!
 
 So, the general flow is like this:
 1. Construct the user feature vector
 2. Pass it through the User Tower to get user embedding
-3. Iterate over all movies, and compute the dot product of the user embedding with each item combined embedding
+3. Iterate over all movies, and compute the dot product of the user embedding with each movie's combined embedding
 4. Sort by predicted score and return the top movies. 
 
 It will look something like this:
 ```python
-user_context = get_user_context()
+user_context = get_user_context() # placeholder for now
 X_inference = torch.tensor([user_context])
 user_embedding_inference = torch.tanh(X_inference @ u_W1 + u_b1)
 
@@ -1233,7 +1241,7 @@ Mulholland Drive (2001)
 ```
 
 #### Horor Movie Lover - Worst Recs
-For someone who loves Horror and hates Children's movies, recommending Home Alone 3, Karate Kid, Free Willy, and Happy Feet are definitely some delightfully bad recommendations.
+For someone who loves Horror and hates Children's movies, recommending Home Alone 3, Karate Kid, Free Willy, and Happy Feet are delightfully bad recommendations.
 ```
 Hello, Horror Lover
 Because you like: [Horror]
